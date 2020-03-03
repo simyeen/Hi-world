@@ -1,0 +1,112 @@
+/*--------------------------------------------------------------------------------------------------------------------------
+C-Programming Asignment 3-2 (C) : 스트라이크 - 볼 게임 프로그램(S-B Game).
+
+학번 : B611019
+전공 : 컴퓨터공학과 2학년
+이름 : 김남일
+
+날짜 : 2019년 05월 19일
+
+주요 내용 :
+void strike_ball(int computer[], int player[], int s_b[])함수는 총 3개의 배열을 입력받는다.
+이때 s_bs_b함수는 computer배열과 player배열을 비교한 후 나오는 strike(s)값과 ball(b)값을 각각 인수로 받는다.
+그러므로 굳이 값을 return하지 않아도 call_by_reference에 의해서 main함수의 s_b배열이 초기화된다. (s_b[0] = s, s_b[1] = b;)
+그리고 메인함수는 s_b[0]은 strike로, s_b[1]은 ball값으로 인식한다.
+----------------------------------------------------------------------------------------------------------------------------*/
+#include <stdio.h>
+#include <time.h>
+#include <math.h>
+#define _CRT_SECURE_NO_WARNINGS
+
+void make_answer(int computer[]) {
+	int i;
+
+	srand((unsigned)time(NULL));
+	computer[0] = (rand() % 9) + 1;       //첫 번째 수에는 1이 나올수 없다.
+	while (1) {
+		for (i = 1; i < 3; i++)
+			computer[i] = (rand() % 10);
+		if (computer[1] != computer[2] && computer[0] != computer[1] && computer[0] != computer[2])
+			break;
+	}
+}
+
+void strike_ball(int computer[], int player[], int s_b[]) {
+
+	int i, j;
+	int s = 0, b = 0;
+
+	for (i = 0; i <3; i++)
+		for (j = 0; j < 3; j++)
+			if (computer[i] == player[j]) {
+				if (i == j) s++;
+				else b++;
+			}
+	s_b[0] = s, s_b[1] = b;
+
+	printf("%d스트라이크, %d볼입니다.\n", s_b[0], s_b[1]);
+
+}
+
+int main() {
+
+	int computer[3] = { 0 }, player[3] = { 0 }, s_b[2] = { 0 };  // 정답과 정답을 맞추려는 값.
+	int i = 0, j = 0, count = 1; //for문을 위한 i,j값과 게임횟수를 세주는 count변수.
+	char input;   // 게임의 시작여부.
+
+	printf("스트라이크-볼 게임을 하시겠습니까?(y or n): \n"); //게임 시작 여부
+	scanf(" %c", &input);
+	srand((unsigned)time(NULL));
+
+	if (input == 'y') {                          //게임 시작하기.
+		make_answer(computer);
+
+		while (1)
+		{
+			input = 0;
+
+			for (i = 0; i < 3; i++)
+				printf("%d", computer[i]);
+
+			printf("정답을 맞춰보세요! (서로 다른 3개의 수를 입력) : \n");
+
+			for (i = 0; i < 3; i++)
+				scanf(" %d", &player[i]);
+
+			strike_ball(computer, player, s_b);
+
+			if (s_b[0] == 3) {                                      //15번안에 정답을 맞출 시 승리한다.
+				printf("축하합니다. 게임에서 승리하셨습니다!\n\n");
+				printf("스트라이크-볼 게임을 한 번 더 하시겠습니까?(y or n): \n"); //게임 시작 여부
+				scanf(" %c", &input);
+
+				if (input == 'y') {                // 승리하고 게임을 다시 시작한다.
+					make_answer(computer);
+					continue;
+				}
+				else if (input == 'n')
+					break;;
+			}
+			else if (count == 15) {                        //15번 안에 못맞추면 패배이다.
+				count = 1;                               //다시 할 경우를 대비해 초기화 해준다.
+				printf("안타깝게도 게임에서 지셨습니다!\n\n");
+				printf("스트라이크-볼 게임을 한 번 더 하시겠습니까?(y or n): \n"); //게임 시작 여부
+				scanf(" %c", &input);
+				if (input == 'y') {
+					make_answer(computer);
+					continue;
+				}
+				else if (input == 'n')
+					break;;
+			}
+			else if (input == 'n')
+				break;;
+			
+			count++;
+		}
+	}
+
+	else return 0;
+
+	return 0;
+}

@@ -1,0 +1,235 @@
+/*------------------------------------------------------------------------------------------------
+C-Programming Asignment 3-4 : 4x4행렬의 합, 곱, 전치행렬, det식을 구하는 프로그램 (S-B Game).
+
+학번 : B611019
+전공 : 컴퓨터공학과 2학년
+이름 : 김남일
+
+날짜 : 2019년 05월 22일
+
+주요 내용 :
+
+이 프로그램의 목적은 4x4 행렬의 합, 곱, 전치행렬, 행렬식을 구하기 위함이다.
+우선 (1)Set_matrix함수로 a[4][4], b[4][4]에 2개의 4x4행렬을 랜덤으로 형성한다. (단, [i][j] = (rand() % 21)-10로 각 원소의 범위가 [-10,10]이다.)
+그리고 형성된 배열을 (2)Print_matrix1함수를 통해 2개의 배열을 출력해준다. 출력은 for문 2개를 통해한다.합을 구하기 위해
+(3)Sum_matrix(int a[][4], int b[][4],int s[][4])함수를
+이용하는데, 매개변수가 3개이다. 즉 a ,b 행렬을 넣어주면 s행렬에 합을 저장하는 함수이다. s[i][j] = a[i][j] + b[i][j]로 구성되어있다.
+(4)Print_matrix2를 통해서 1개의 배열을 출력해준다. 곱을 귀하기 위해 (5)Mul_matrix(int a[][4], int b[][4], int m[4][4])를 사용하는데, 사용방식은
+(3)Sum_matrix함수와 동일하다. 단, for (i = 0; i < 4; i++) for (j = 0; j < 4; j++) for (h = 0; h < 4; h++) m[i][j] += (a[i][h]*b[h][j]); 처럼
+3개의 for문을 이용한다는 점이 다르다. (6)Trans_matrix(int a[][4], int t[][4])을 통해서 전치행렬을 구할 수 있다. t[j][i] = a[i][j];로 구성되어있다.
+
+(6)Det4 즉 4x4행렬식을 구하기 이전에 먼저 맨 아래의 하이퍼링크를 참조하길 바란다.
+(6)Det4함수를 만들기 위해선 우선 (6-1)Det2, (6-2)Det3함수가 필요하다. 왜냐하면 참조페이지를 통해 알수 있듯이
+4x4행렬식을 구하기 위해선 -a[0][0], a[0][1], -a[0][2] ,a[0][3]가 속한 행과 열을 제외한 행렬에
+각각 제외된 인수를 곱해주고, 그 행렬식들의 합을 구하는 것이기 때문이다. 예를들어 -a[0][0]에 곱해지는 행렬을
+A1행렬이라 할 시에 그 A1행렬의 행렬식을 구하기 위해선, 다시 여인수 정리를 사용해야한다.
+즉 A1[0][0], -A1[0][1], A1[0][2]이 속한 행과 열을 제외한 2x2행렬 행렬식에 각각의 인수들을 곱한 값들의 합들을 구하면된다.
+for(i=0;i<4;i++)동안 실행하면 4x4행렬식을 구할 수 있다.그리고 (6)Det4를 이용해 det(A)와 det(A|T)의 행렬식이 같은지, det(AB)와 det(A)det(B)가 같은지 알아볼 수 있다.
+
+https://kin.naver.com/qna/detail.nhn?d1id=11&dirId=1113&docId=213082313&qb=7ZaJ66Cs7Iud&enc=utf8&section=kin.qna&rank=30&search_sort=0&spq=0 여인수정리
+------------------------------------------------------------------------------------------------*/
+#include <stdio.h>
+#include <time.h>
+#include <math.h>
+#define _CRT_SECURE_NO_WARNINGS
+
+void Set_matrix(int a[][4], int b[][4]) {  //4차 정방향 행렬 2개를 생성해준다.
+	int i, j;
+
+	srand((unsigned)time(NULL));
+
+	for (i = 0; i < 4; i++)
+		for (j = 0; j < 4; j++)
+		{
+			a[i][j] = (rand() % 21) - 10;
+			b[i][j] = (rand() % 21) - 10;
+		}
+}
+void Print_matrix1(int a[][4], int b[][4]) { //생성된 2개의 행렬을 출력해준다.
+	int i, j;
+
+	for (i = 0; i < 4; i++)
+	{
+		for (j = 0; j < 4; j++)
+		{
+			printf("%5d", a[i][j]);
+		}
+		printf("   ");
+
+		for (j = 0; j < 4; j++)
+		{
+			printf("%5d", b[i][j]);
+		}
+		printf("\n");
+
+	}
+	printf("\n");
+}
+void Print_matrix2(int c[][4]) {      // 연산 후 생성된 행렬을 출력해준다.
+	int i, j;
+
+	for (i = 0; i < 4; i++)
+	{
+		for (j = 0; j < 4; j++)
+			printf("%5d", c[i][j]);
+		printf("\n");
+
+	}
+	printf("\n");
+}
+void Sum_matrix(int a[][4], int b[][4], int s[][4])  // 행렬의 합을 연산한다.
+{
+	int i, j;
+
+	for (i = 0; i < 4; i++)
+		for (j = 0; j < 4; j++)
+		{
+			s[i][j] = a[i][j] + b[i][j];
+		}
+
+}
+void Mul_matrix(int a[][4], int b[][4], int m[4][4]) { //행렬의 곱을 연산한다.
+	int i, j, h;
+
+	for (i = 0; i < 4; i++)
+		for (j = 0; j < 4; j++)
+			for (h = 0; h < 4; h++)
+				m[i][j] += (a[i][h] * b[h][j]);
+
+}
+void Trans_matrix(int a[][4], int t[][4]) {
+
+	int i, j;
+
+	for (i = 0; i < 4; i++)
+		for (j = 0; j < 4; j++)
+			t[j][i] = a[i][j];
+
+}
+
+int det2(int a[][2]) // 기본 행렬식 정리 (우리가알던 ad-bc의 식.)
+{
+	return((a[0][0] * a[1][1]) - (a[0][1] * a[1][0]));
+}
+
+int det3(int a[][3])//3차 행렬부터는 여인수 정의를 활용한다.
+{
+	int det = 0;
+	int c1[2][2];
+	int c2[2][2];
+	int c3[2][2];
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (i % 2 != 0)
+			a[0][i] = -a[0][i]; //a[0][0] , a[0][1], a[0][2]를 여인수로 치는데 
+								//이때 홀수번째에는 -가 붙고, 짝수번째에는 -가 붙지 않는다.
+		if (i == 0){
+			for (int j = 0; j<2; j++)
+				for (int h = 0; h < 2; h++)
+					c1[j][h] = a[j + 1][h + 1];
+			det += (a[0][i] * det2(c1));
+		}
+		else if (i == 1){
+			for (int j = 0; j < 2; j++)
+				for (int h = 0; h < 2; h++)
+					c2[j][h] = a[j + 1][h * 2];
+			det += (a[0][i] * det2(c2));
+		}
+		else if (i == 2){
+			for (int j = 0; j < 2; j++)
+				for (int h = 0; h < 2; h++)
+					c3[j][h] = a[j + 1][h];
+			det += (a[0][i] * det2(c3));
+		}
+	}
+	return det;
+}
+
+int det4(int a[][4]) //4차는 각각 1행들을 여인수로 쓰고 다시 3차행렬식을 끌어와서 쓴다.
+{  //https://kin.naver.com/qna/detail.nhn?d1id=11&dirId=1113&docId=213082313&qb=7ZaJ66Cs7Iud&enc=utf8&section=kin.qna&rank=30&search_sort=0&spq=0 참조
+	int det = 0;
+	int c1[3][3];
+	int c2[3][3];
+	int c3[3][3];
+	int c4[3][3];
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (i % 2 == 0)        //a[0][0] , a[0][1], a[0][2], a[0][3]를 여인수로 치는데 
+			a[0][i] = -a[0][i];//3x3행렬과는 반대로 짝수번째 일 때 -가 곱해진다.
+		if (i == 0){ 
+			for (int j = 0; j < 3; j++)
+				for (int h = 0; h < 3; h++)
+					c1[j][h] = a[j + 1][h + 1];
+			det += (a[0][i] * det3(c1));
+		}
+		else if (i == 1)
+		{
+			for (int j = 0; j < 3; j++)
+				for (int h = 0; h < 3; h++)
+				{
+					if (h == 0)
+						c2[j][h] = a[j + 1][h];
+					else
+						c2[j][h] = a[j + 1][h + 1];
+				}
+			det += (a[0][i] * det3(c2));
+		}
+		else if (i == 2){
+			for (int j = 0; j < 3; j++)
+				for (int h = 0; h < 3; h++)
+				{
+					if (h == 2)
+						c3[j][h] = a[j + 1][h + 2];
+					else
+						c3[j][h] = a[j + 1][h];
+				}
+			det += (a[0][i] * det3(c3));
+		}
+		else if (i == 3){
+			for (int j = 0; j < 3; j++)
+				for (int h = 0; h < 3; h++)
+					c4[j][h] = a[j + 1][h];
+			det += (a[0][i] * det3(c4));
+		}
+	}
+	return det;
+}
+int main() {
+	int a[4][4] = { 0 }; int b[4][4] = { 0 }; int s[4][4] = { 0 }; int m[4][4] = { 1 }; int t[4][4] = { 0 };
+	int i, j;
+
+	printf("(1) 생성된 2개의 행렬: \n\n");
+	Set_matrix(a, b);
+	Print_matrix1(a, b);
+	
+	printf("(2) 2개의 행렬의 합: \n\n");
+	Sum_matrix(a, b, s);
+	Print_matrix2(s);
+	
+	printf("(3) 2개의 행렬의 곱: \n\n");
+	Mul_matrix(a, b, m);
+	Print_matrix2(m);
+	
+	printf("(4) 전치행렬을 취해준 값: \n\n");
+	Trans_matrix(a, t);
+	Print_matrix2(t);
+	
+	printf("(5)첫 번째 행렬의 행렬식 값: %d 두 번째 행렬의 행렬식 값: %d \n\n", det4(a), det4(b));
+	
+	printf("A의 행렬식과 A의 전치행렬의 행렬식은 같은가?: \n\n");
+
+	if (det4(t) == det4(a))
+		printf("두 식의 행렬식이 같습니다.\n\n");
+	else printf("두 식의 행렬식이 다릅니다.\n\n");
+
+	printf("det(A|x|B))와 det(A|)det(|B)은 같은가?: \n\n");
+
+	if (det4(m) == det4(a)*det4(b))
+		printf("두 식의 행렬식이 같습니다.\n\n");
+	else printf("두 식의 행렬식이 다릅니다.\n\n");
+
+
+	return 0;
+}

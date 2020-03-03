@@ -1,0 +1,70 @@
+#include <iostream>
+using namespace std;
+
+struct Point{	
+	int x;	
+	int y;
+}; 
+
+Point **make2darray(int r, int c)
+{
+ 
+ Point **p; // 2차원 array의 이름을 p라 하자.
+ 
+ int i, j;
+
+ p = new Point*[r]; //r의 동적할당. 
+
+ for (i = 0; i < r; i++)
+  p[i] = new Point[c]; //1열당 5개씩 동적할당 - 총 20개. 
+ 
+ for (i = 0; i < r; i++){
+  for (j = 0; j < c; j++){
+   p[i][j].x = i + j;      // 열당 수를 지정해준다. 
+   p[i][j].y = 2 * (i + j);
+  }
+ }
+ 
+//***** 크기가 r by c 인 int 의 2차원 array를 완성한다.
+ return p; // 제작한 2차원 array의 주소를 반환하다.
+
+}
+
+void print2darray(int r, int c, Point **p)
+{
+ //***** r by c 2차원 int array를 출력한다.
+
+ int i, j;
+
+ for (i = 0; i < r; i++){
+  for (j = 0; j < c; j++){
+   cout << "("<< p[i][j].x << "," << p[i][j].y <<")" << "\t";
+  }
+  
+  cout << endl; //endl = \n기능.
+ }
+
+}
+
+void delete2darray(int r, Point **p)
+{
+ //***** 주소가 p이고 row의 수가 2차원 array르 반납한라.
+ int i;
+
+ for (i = 0; i < r; i++)
+  delete[] p[i];
+ delete[] p;
+
+}
+
+int main()
+{
+ Point **p; //p is 2d array name 
+
+ p = make2darray(4, 5); //4 by 5 array 제작
+ print2darray(4, 5, p); // 4 by 5 array 출력
+ delete2darray(4, p); //delete 2-d array, while #rows = 4
+ print2darray(4, 5, p);
+ 
+ return 0;
+}
